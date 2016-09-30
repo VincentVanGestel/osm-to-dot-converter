@@ -1,5 +1,8 @@
 package com.github.vincentvangestel.osmdot;
 
+import java.util.List;
+
+import com.github.rinde.rinsim.geom.Connection;
 import com.github.rinde.rinsim.geom.Graph;
 import com.github.rinde.rinsim.geom.MultiAttributeData;
 import com.github.rinde.rinsim.geom.TableGraph;
@@ -18,10 +21,14 @@ public class OsmConverter {
 	public Graph<MultiAttributeData> convert(String uri) {
 		// Read file
 		OsmMap map = OsmReader.read(uri);
+		List<Connection<MultiAttributeData>> conns = map.getWays();
 		
 		// Convert to Graph
 	    Graph<MultiAttributeData> graph = new TableGraph<>();
-	    //TODO conversion
+	    
+	    for(Connection<MultiAttributeData> conn : conns) {
+	    	graph.addConnection(conn);
+	    }
 		
 		// Export file
 		if(output_dir.isPresent()) {

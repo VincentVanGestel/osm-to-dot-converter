@@ -14,7 +14,7 @@ public class DotWriter {
 
 	protected static void export(Graph<MultiAttributeData> graph, String folder) {
 		try {
-			DotGraphIO.getMultiAttributeGraphIO().write(graph, folder + File.pathSeparator + System.currentTimeMillis() + ".dot");
+			DotGraphIO.getMultiAttributeGraphIO().write(graph, folder + File.pathSeparator + "out" + System.currentTimeMillis() + ".dot");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
