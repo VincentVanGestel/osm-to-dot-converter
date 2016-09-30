@@ -1,5 +1,10 @@
 package com.github.vincentvangestel.osmdot;
 
+import com.github.rinde.rinsim.geom.Graph;
+import com.github.rinde.rinsim.geom.MultiAttributeData;
+import com.github.rinde.rinsim.geom.TableGraph;
+import com.google.common.base.Optional;
+
 /**
  * This class is responsible for guiding the conversion process.
  * It will call the {@link OsmReader} to load the data,
@@ -8,14 +13,30 @@ package com.github.vincentvangestel.osmdot;
  */
 public class OsmConverter {
 
-	public void convert(String uri) {
-		// TODO Auto-generated method stub
+	private Optional<String> output_dir = Optional.absent();
+	
+	public Graph<MultiAttributeData> convert(String uri) {
+		// Read file
+		OsmMap map = OsmReader.read(uri);
 		
+		// Convert to Graph
+	    Graph<MultiAttributeData> graph = new TableGraph<>();
+	    //TODO conversion
+		
+		// Export file
+		if(output_dir.isPresent()) {
+			DotWriter.export(graph, output_dir.get());
+		}
+		
+		return graph;
 	}
-
+	
+	/**
+	 * Sets the output folder of any newly converted osm file by this {@link OsmConverter}.
+	 * @param folder The given folder.
+	 */
 	public void setOutputDir(String folder) {
-		// TODO Auto-generated method stub
-		
+		output_dir = Optional.of(folder);
 	}
 
 }

@@ -14,6 +14,10 @@ import org.w3c.dom.NodeList;
  */
 public class OsmReader {
 
+	protected static OsmMap read(String uri) {
+		return null;
+	}
+	
 	protected List<Node> getNodes(String tagName, NodeList nodes) {
         List<Node> suitableNodes = new ArrayList<>();
     	for ( int x = 0; x < nodes.getLength(); x++ ) {
