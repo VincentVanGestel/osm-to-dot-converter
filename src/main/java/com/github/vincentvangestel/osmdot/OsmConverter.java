@@ -190,7 +190,10 @@ public class OsmConverter {
                 // Point(Double.parseDouble(converted[2]),
                 // -Double.parseDouble(converted[3])));
 
-                nodes.put(attributes.getValue("id"), new Point(x, y));
+                //nodes.put(attributes.getValue("id"), new Point(x, y));
+                
+                //Note, in order to keep track of Latitude and Longitude, no conversion or scaling is made.
+                nodes.put(attributes.getValue("id"), new Point(lon, lat));
 
             } else if (localName.equals("way")) {
                 current = new WayParser(nodes);
@@ -275,14 +278,14 @@ public class OsmConverter {
 
                         double length = Point.distance(from, to);
                         if (!graph.hasConnection(from, to)) {
-                            graph.addConnection(from, to, MultiAttributeData.builder().setLength(length)
-                            		//.setMaxSpeed(maxSpeed)
-                            		.build());
+                            MultiAttributeData.Builder data = MultiAttributeData.builder().setLength(length);
+                            if(!Double.isNaN(maxSpeed)) { data.setMaxSpeed(maxSpeed); }
+                            graph.addConnection(from, to, data.build());
                         }
                         if (!oneWay && !graph.hasConnection(to, from)) {
-                            graph.addConnection(to, from, MultiAttributeData.builder().setLength(length)
-                            		//.setMaxSpeed(maxSpeed)
-                            		.build());
+                            MultiAttributeData.Builder data = MultiAttributeData.builder().setLength(length);
+                            if(!Double.isNaN(maxSpeed)) { data.setMaxSpeed(maxSpeed); }
+                        	graph.addConnection(to, from, data.build());
                         }
                     }
                 }
