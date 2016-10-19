@@ -10,11 +10,9 @@ public class Test
 {
     public static void main( String[] args ) throws ParserConfigurationException, SAXException, IOException {
     	OsmConverter converter = new OsmConverter();
-        converter.setOutputDir("files/maps/");
-        /**
-         * TODO To Decide: does convert auto write? Does convert generate Graph, does convert generate dot file?
-         */
-        converter.convert("files/maps/Tervuursevest.osm");
+        converter.setOutputDir("files/maps/")
+        	.withOutputName("leuven-large.dot")
+        	.convert("files/maps/leuven-large.osm");
     	
     }
 }

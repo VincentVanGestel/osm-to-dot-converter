@@ -29,13 +29,20 @@ import com.google.common.base.Optional;
 public class OsmConverter {
 
 	private Optional<String> output_dir = Optional.absent();
+	private Optional<String> output_name = Optional.absent();
 	
 	/**
 	 * Sets the output folder of any newly converted osm file by this {@link OsmConverter}.
 	 * @param folder The given folder.
 	 */
-	public void setOutputDir(String folder) {
+	public OsmConverter setOutputDir(String folder) {
 		output_dir = Optional.of(folder);
+		return this;
+	}
+	
+	public OsmConverter withOutputName(String name) {
+		output_name = Optional.of(name);
+		return this;
 	}
 
     static HashSet<String> highwayNames = new HashSet<String>();
@@ -69,7 +76,7 @@ public class OsmConverter {
             
     		// Export file
     		if(output_dir.isPresent()) {
-    			DotWriter.export(graph, output_dir.get());
+    			DotWriter.export(graph, output_dir.get(), output_name);
     		}
             
             
@@ -127,7 +134,8 @@ public class OsmConverter {
 
                 // MAGIC constant! Don't touch this without consulting either
                 // Rinde van Lon or Bartosz Michalik, preferably both :-)
-                double scale = 1000000 / 1.425139046;// Math.toDegrees(Math.cos(Math.toRadians(lat)
+                
+                double scale = 1000000 / (8 * 1.425139046);// Math.toDegrees(Math.cos(Math.toRadians(lat)
                                                      // * Math.PI /
                                                      // Math.toRadians(180)))
                                                      // * 2 * Math.PI *
@@ -190,10 +198,10 @@ public class OsmConverter {
                 // Point(Double.parseDouble(converted[2]),
                 // -Double.parseDouble(converted[3])));
 
-                //nodes.put(attributes.getValue("id"), new Point(x, y));
+                nodes.put(attributes.getValue("id"), new Point(x, y));
                 
                 //Note, in order to keep track of Latitude and Longitude, no conversion or scaling is made.
-                nodes.put(attributes.getValue("id"), new Point(lon, lat));
+                //nodes.put(attributes.getValue("id"), new Point(lon, lat));
 
             } else if (localName.equals("way")) {
                 current = new WayParser(nodes);
@@ -225,6 +233,7 @@ public class OsmConverter {
 
         protected List<String> nodes;
         protected double maxSpeed;
+        protected Optional<String> name;
         protected boolean oneWay;
         protected boolean isValidRoad;
         protected HashMap<String, Point> nodeMapping;
@@ -232,7 +241,8 @@ public class OsmConverter {
         public WayParser(HashMap<String, Point> nodeMapping) {
             nodes = new ArrayList<String>();
             oneWay = false;
-            maxSpeed = Double.NaN;
+            name = Optional.absent();
+            maxSpeed = 50;
             isValidRoad = false;
             this.nodeMapping = nodeMapping;
         }
@@ -257,12 +267,16 @@ public class OsmConverter {
                     isValidRoad = true;
                 } else if (attributes.getValue("k").equals("maxspeed")) {
                     try {
-                        maxSpeed = 1000.0 * Integer.parseInt(attributes
+//                        maxSpeed = 1000.0 * Integer.parseInt(attributes
+//                                .getValue("v").replaceAll("\\D", ""));
+                    	maxSpeed = Integer.parseInt(attributes
                                 .getValue("v").replaceAll("\\D", ""));
                     } catch (NumberFormatException nfe) {
                         // ignore if this happens, it means that no max speed
                         // was defined
                     }
+                } else if (attributes.getValue("k").equals("name")) {
+                	name = Optional.of(attributes.getValue("v"));
                 }
             } else if (localName.equals("nd")) {
                 nodes.add(attributes.getValue("ref"));
@@ -277,13 +291,17 @@ public class OsmConverter {
                     if (from != null && to != null && !from.equals(to)) {
 
                         double length = Point.distance(from, to);
+                        MultiAttributeData.Builder data = MultiAttributeData.builder()
+                        		.setLength(length)
+                        		.addAttribute("ts", maxSpeed);
+                       	if(name.isPresent()) {
+                       		data.addAttribute("n", name.get());
+                       	}
                         if (!graph.hasConnection(from, to)) {
-                            MultiAttributeData.Builder data = MultiAttributeData.builder().setLength(length);
                             if(!Double.isNaN(maxSpeed)) { data.setMaxSpeed(maxSpeed); }
                             graph.addConnection(from, to, data.build());
                         }
                         if (!oneWay && !graph.hasConnection(to, from)) {
-                            MultiAttributeData.Builder data = MultiAttributeData.builder().setLength(length);
                             if(!Double.isNaN(maxSpeed)) { data.setMaxSpeed(maxSpeed); }
                         	graph.addConnection(to, from, data.build());
                         }
@@ -292,5 +310,4 @@ public class OsmConverter {
             }
         }
     }
-
 }
