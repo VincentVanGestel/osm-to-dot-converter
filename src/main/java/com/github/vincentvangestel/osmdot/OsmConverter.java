@@ -19,7 +19,9 @@ import com.github.rinde.rinsim.geom.Graph;
 import com.github.rinde.rinsim.geom.MultiAttributeData;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.geom.TableGraph;
+import com.github.vincentvangestel.osmdot.pruner.Pruner;
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 /**
  * This class is responsible for guiding the conversion process.
@@ -30,6 +32,8 @@ public class OsmConverter {
 
 	private Optional<String> output_dir = Optional.absent();
 	private Optional<String> output_name = Optional.absent();
+	
+	private List<Pruner> pruners = new ArrayList<>();
 	
 	/**
 	 * Sets the output folder of any newly converted osm file by this {@link OsmConverter}.
@@ -44,6 +48,11 @@ public class OsmConverter {
 		output_name = Optional.of(name);
 		return this;
 	}
+	
+	public OsmConverter withPruner(Pruner... pruners) {
+		this.pruners.addAll(Lists.newArrayList(pruners));
+		return this;
+	}
 
     static HashSet<String> highwayNames = new HashSet<String>();
 
@@ -54,7 +63,7 @@ public class OsmConverter {
             XMLReader xmlReader = XMLReaderFactory.createXMLReader();
             // Multimap<Point, Point> graph = HashMultimap.create();
 
-            TableGraph<MultiAttributeData> graph = new TableGraph<MultiAttributeData>();
+            Graph<MultiAttributeData> graph = new TableGraph<MultiAttributeData>();
 
             OSMParser parser = new OSMParser(graph);
             xmlReader.setContentHandler(parser);
@@ -73,6 +82,11 @@ public class OsmConverter {
                 graph.removeConnection(connection.from(), connection.to());
             }
             // System.out.println(highwayNames.toString());
+            
+            // Prune
+            for(Pruner p : pruners) {
+            	graph = p.prune(graph);
+            }
             
     		// Export file
     		if(output_dir.isPresent()) {
