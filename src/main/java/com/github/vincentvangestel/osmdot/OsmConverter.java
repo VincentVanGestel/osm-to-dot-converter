@@ -154,7 +154,7 @@ public class OsmConverter {
                                                      // Math.toRadians(180)))
                                                      // * 2 * Math.PI *
                                                      // earthRadius / 1000;
-
+                double METER_TO_KM = 1/1000d;
                 //
 
                 // sinLatitude = sin(latitude * pi/180)
@@ -170,9 +170,9 @@ public class OsmConverter {
                 // sinLattitude)) / (4 * Math.PI));
 
                 // MERCATOR:
-                double x = scale * lon; // Math.round(earthRadius *
+                double x = scale * lon * METER_TO_KM; // Math.round(earthRadius *
                                         // Math.cos(lat) * Math.sin(lon));
-                double y = scale
+                double y = scale * METER_TO_KM
                         * Math.toDegrees(1.0 / Math.sinh(Math.tan(Math
                                 .toRadians(lat))));// Math.log(Math.tan(.25
                                                    // *

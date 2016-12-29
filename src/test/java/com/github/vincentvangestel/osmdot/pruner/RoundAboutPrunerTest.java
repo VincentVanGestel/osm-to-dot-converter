@@ -43,7 +43,7 @@ public class RoundAboutPrunerTest {
 	  E = new Point(20,15);
 	  F = new Point(15,10);
 	  
-	  Center = Point.center(Lists.newArrayList(A, B, C, D, E, F));
+	  Center = Point.centroid(Lists.newArrayList(A, B, C, D, E, F));
 	  
 	  O = new Point(300,300);
 	  I = new Point(300,150);
@@ -85,7 +85,7 @@ public class RoundAboutPrunerTest {
 	  F = new Point(15,10);
 	  N = new Point(10, 30);
 	  
-	  Center = Point.center(Lists.newArrayList(A, B, C, D, E, F, N));
+	  Center = Point.centroid(Lists.newArrayList(A, B, C, D, E, F, N));
 	  
 	  O = new Point(300,300);
 	  I = new Point(300,150);
@@ -135,8 +135,8 @@ public class RoundAboutPrunerTest {
 	  D2 = new Point(40,30);
 	  F2 = new Point(40,10);
 	  
-	  Center1 = Point.center(Lists.newArrayList(A1, B1, C1, D1, E, F1));
-	  Center2 = Point.center(Lists.newArrayList(A2, B2, C2, D2, E, F2));
+	  Center1 = Point.centroid(Lists.newArrayList(A1, B1, C1, D1, E, F1));
+	  Center2 = Point.centroid(Lists.newArrayList(A2, B2, C2, D2, E, F2));
   
 	  
 	  graph.addConnection(A1, B1, data);

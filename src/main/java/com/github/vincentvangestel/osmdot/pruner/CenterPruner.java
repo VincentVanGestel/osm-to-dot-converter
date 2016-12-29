@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.commons.math3.random.MersenneTwister;
+
 import com.github.rinde.rinsim.geom.Graph;
 import com.github.rinde.rinsim.geom.Graphs;
 import com.github.rinde.rinsim.geom.MultiAttributeData;
 import com.github.rinde.rinsim.geom.PathNotFoundException;
 import com.github.rinde.rinsim.geom.Point;
+import com.google.common.collect.ImmutableList;
 
 public class CenterPruner implements Pruner {
 
@@ -19,7 +22,7 @@ public class CenterPruner implements Pruner {
 	 */
 	@Override
 	public Graph<MultiAttributeData> prune(Graph<MultiAttributeData> g) {
-		Point center = Graphs.getCenterMostPoint(g);
+		Point center = getCenterMostPoint(g);
 		
 		List<Point> toRemove = new ArrayList<>();
 		
@@ -41,5 +44,34 @@ public class CenterPruner implements Pruner {
 		return g;
 	}
 
+	
+	  /**
+	   * Returns the point closest to the exact center of the area spanned by the
+	   * graph.
+	   * @param graph The graph.
+	   * @return The point of the graph closest to the exact center of the area
+	   *         spanned by the graph.
+	   */
+	  private Point getCenterMostPoint(Graph<?> graph) {
+	    final ImmutableList<Point> extremes = Graphs.getExtremes(graph);
+	    final Point exactCenter =
+	      Point.divide(Point.add(extremes.get(0), extremes.get(1)), 2d);
+	    Point center = graph.getRandomNode(new MersenneTwister());
+	    double distance = Point.distance(center, exactCenter);
+
+	    for (final Point p : graph.getNodes()) {
+	      final double pDistance = Point.distance(p, exactCenter);
+	      if (pDistance < distance) {
+	        center = p;
+	        distance = pDistance;
+	      }
+
+	      if (center.equals(exactCenter)) {
+	        return center;
+	      }
+	    }
+
+	    return center;
+	  }
 
 }

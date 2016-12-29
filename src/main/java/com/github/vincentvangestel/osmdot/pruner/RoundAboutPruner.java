@@ -89,7 +89,7 @@ public class RoundAboutPruner implements Pruner {
 				}
 				
 				// Create a new point at the center of the cycle
-				Point center = Point.center(pathPointsSet);
+				Point center = Point.centroid(pathPointsSet);
 				
 				/**************************************************************************************************/
 				
