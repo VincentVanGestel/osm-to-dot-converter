@@ -16,6 +16,12 @@ import com.google.common.base.Optional;
 
 public class RoundAboutPruner implements Pruner {
 
+	private final double size;
+	
+	public RoundAboutPruner(double size) {
+		this.size = size;
+	}
+	
 	/**
 	 * Prunes all nodes forming roundabouts. These roundabouts are replaced by a single node, simulating a crossroad. The supplied graph is modified (no copy is taken)
 	 * @param g The graph to be pruned
@@ -195,8 +201,8 @@ public class RoundAboutPruner implements Pruner {
 	}
 	
 	private Optional<List<Connection<MultiAttributeData>>> branchConn(Connection<MultiAttributeData> conn, List<Connection<MultiAttributeData>> path, double pathDistance, Graph<MultiAttributeData> g) {
-		// A to be pruned roundabout is shorter than 100 meters
-		if(pathDistance + conn.getLength() > 100) { return Optional.absent(); }
+		// A to be pruned roundabout is shorter than size
+		if(pathDistance + conn.getLength() > size) { return Optional.absent(); }
 		
 		// Add conn to path
 		path.add(conn);

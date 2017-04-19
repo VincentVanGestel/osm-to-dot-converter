@@ -20,7 +20,7 @@ public class RoundAboutPrunerTest {
 
   Graph<MultiAttributeData> graph;
   static final MultiAttributeData data = MultiAttributeData.builder().setMaxSpeed(10).build();
-  static final RoundAboutPruner pruner = new RoundAboutPruner();
+  static final RoundAboutPruner pruner = new RoundAboutPruner(100);
 
   static final Connection<LengthData> DUMMY = Connection.create(
     new Point(0, 0), new Point(1, 1));

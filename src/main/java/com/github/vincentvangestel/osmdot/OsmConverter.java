@@ -19,6 +19,7 @@ import com.github.rinde.rinsim.geom.Graph;
 import com.github.rinde.rinsim.geom.MultiAttributeData;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.geom.TableGraph;
+import com.github.rinde.rinsim.geom.io.DotGraphIO;
 import com.github.vincentvangestel.osmdot.pruner.Pruner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -34,6 +35,7 @@ public class OsmConverter {
 	private Optional<String> output_name = Optional.absent();
 	
 	private List<Pruner> pruners = new ArrayList<>();
+	private boolean inputIsDot = false;
 	
 	/**
 	 * Sets the output folder of any newly converted osm file by this {@link OsmConverter}.
@@ -53,34 +55,44 @@ public class OsmConverter {
 		this.pruners.addAll(Lists.newArrayList(pruners));
 		return this;
 	}
+	
+	public OsmConverter inputIsDot(boolean inputIsDot) {
+		this.inputIsDot = inputIsDot;
+		return this;
+	}
 
     static HashSet<String> highwayNames = new HashSet<String>();
 
     public Graph<MultiAttributeData> convert(String filename) {
-        try {
-            InputSource inputSource = new InputSource(new FileInputStream(
-                    filename));
-            XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-            // Multimap<Point, Point> graph = HashMultimap.create();
-
-            Graph<MultiAttributeData> graph = new TableGraph<MultiAttributeData>();
-
-            OSMParser parser = new OSMParser(graph);
-            xmlReader.setContentHandler(parser);
-            xmlReader.setErrorHandler(parser);
-            xmlReader.parse(inputSource);
-
-            // remove circular connections
-            List<Connection<MultiAttributeData>> removeList = new ArrayList<Connection<MultiAttributeData>>();
-            for (Connection<MultiAttributeData> connection : graph
-                    .getConnections()) {
-                if (connection.from().equals(connection.to())) {
-                    removeList.add(connection);
-                }
-            }
-            for (Connection<MultiAttributeData> connection : removeList) {
-                graph.removeConnection(connection.from(), connection.to());
-            }
+    	Graph<MultiAttributeData> graph;
+    	try {
+        	if(inputIsDot) {
+        		graph = DotGraphIO.getMultiAttributeGraphIO().read(filename);
+        	} else {
+	            InputSource inputSource = new InputSource(new FileInputStream(
+	                    filename));
+	            XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+	            // Multimap<Point, Point> graph = HashMultimap.create();
+	
+	            graph = new TableGraph<MultiAttributeData>();
+	
+	            OSMParser parser = new OSMParser(graph);
+	            xmlReader.setContentHandler(parser);
+	            xmlReader.setErrorHandler(parser);
+	            xmlReader.parse(inputSource);
+	
+	            // remove circular connections
+	            List<Connection<MultiAttributeData>> removeList = new ArrayList<Connection<MultiAttributeData>>();
+	            for (Connection<MultiAttributeData> connection : graph
+	                    .getConnections()) {
+	                if (connection.from().equals(connection.to())) {
+	                    removeList.add(connection);
+	                }
+	            }
+	            for (Connection<MultiAttributeData> connection : removeList) {
+	                graph.removeConnection(connection.from(), connection.to());
+	            }
+        	}
             // System.out.println(highwayNames.toString());
             
             // Prune
